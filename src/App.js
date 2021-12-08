@@ -94,21 +94,6 @@ function App() {
     }
   }
   
-  const usersTokens = async () => {
-    try{
-      const { ethereum } = window;
-      if (ethereum) {
-        //tiger1 and tiger 2 needs to be what user inputs in the front end
-        let nftTxn = await nftContractERC721.tokenIdsOfOwner(currentAccount);
-        await nftTxn.wait();
-        return nftTxn._value;
-      } else {
-        console.log("Ethereum object does not exist");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }
 
 
 
@@ -196,14 +181,6 @@ function App() {
     )
   }
 
-  const usersTokensSection = () => {
-    return (
-      <h1 className='cta-button users-token'>
-        hello {usersTokens}
-      </h1>
-    )
-  }
-
   const claimRewardButton = () => {
     return (
       <button onClick={claimPixel} className='cta-button claim-reward-button'>
@@ -243,9 +220,6 @@ function App() {
       </div>
       <div>
         {claimRewardButton()}
-      </div>
-      <div>
-        {usersTokensSection()}
       </div>
     </div>
   )
