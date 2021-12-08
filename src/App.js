@@ -21,6 +21,7 @@ function App() {
 
   const [currentAccount, setCurrentAccount] = useState(null);
 
+  //CONNECTING USERS WALLET
   const checkWalletIsConnected = async () => {
     if (!ethereum) {
       console.log("Make sure you have Metamask installed!");
@@ -54,13 +55,13 @@ function App() {
     }
   }
 
-  //mint function
+  //CALLING FUNCTIONS FROM ERC721 CONTRACT
   const mintNftHandler = async () => {
     try {
       const { ethereum } = window;
       if (ethereum) {
         console.log("Initialize payment");
-        //the value 1 has to be changed with user input of how many he wants to mint, value has to be: that statement *input
+        //the value 1 has to be changed with user input of how many he wants to mint then ether.utils... *input
         let nftTxn = await nftContractERC721.mint(1 , { value: ethers.utils.parseEther("0.06") });
         //let nftTxn = await nftContractERC721.presaleMint(1 , { value: ethers.utils.parseEther("0.06") });
         //let nftTxn = await nftContractERC721.reserveMint(1 , { value: ethers.utils.parseEther("0.06") });
@@ -72,9 +73,46 @@ function App() {
       }
     } catch (err) {
       console.log(err);
+      alert("User denied transaction signature.")
     }
   }
 
+  const breed = async () => {
+    try{
+      const { ethereum } = window;
+      if (ethereum) {
+        //tiger1 and tiger 2 needs to be what user inputs in the front end
+        let nftTxn = await nftContractERC721.breed(0, 1);
+        console.log("breeding")
+        await nftTxn.wait();
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
+      } else {
+        console.log("Ethereum object does not exist");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
+  const usersTokens = async () => {
+    try{
+      const { ethereum } = window;
+      if (ethereum) {
+        //tiger1 and tiger 2 needs to be what user inputs in the front end
+        let nftTxn = await nftContractERC721.tokenIdsOfOwner(currentAccount);
+        await nftTxn.wait();
+        return nftTxn._value;
+      } else {
+        console.log("Ethereum object does not exist");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+
+
+  //CALLING FUNCTIONS FROM ERC20 CONTRACT
   const claimPixel = async () => {
     try{
       const { ethereum } = window;
@@ -92,12 +130,12 @@ function App() {
     }
   }
 
-  const enterRaffle = async () => {
+  const enterMainRaffle = async () => {
     try{
       const { ethereum } = window;
       if (ethereum) {
         console.log("entering raffle");
-        //please read PixelsERC20 code to understand the function; enterMainRaffle(numtickets)
+        //need to change value "1" with users input from front end
         let nftTxn = await nftContractERC20.enterMainRaffle(1);
         console.log("claiming...")
         await nftTxn.wait();
@@ -109,6 +147,29 @@ function App() {
       console.log(err);
     }
   }
+
+  const enterSubRaffle = async () => {
+    try{
+      const { ethereum } = window;
+      if (ethereum) {
+        console.log("entering raffle");
+        //need to change value "1" with users input from front end
+        let nftTxn = await nftContractERC20.enterSubRaffle(1);
+        console.log("claiming...")
+        await nftTxn.wait();
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
+      } else {
+        console.log("Ethereum object does not exist");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+
+
+
+  //BUTTONS
 
   const connectWalletButton = () => {
     return (
@@ -127,18 +188,42 @@ function App() {
     )
   }
 
-  const claimRewardButton = () => {
+  const breedButton = () => {
     return (
-      <button onClick={claimPixel} className='cta-button claim-reward-button'>
-        claim
+      <button onClick={breed} className='cta-button breed-button'>
+        Breed
       </button>
     )
   }
 
-  const enterRaffleButton = () => {
+  const usersTokensSection = () => {
     return (
-      <button onClick={enterRaffle} className='cta-button enter-raffle-button'>
-        enter
+      <h1 className='cta-button users-token'>
+        hello {usersTokens}
+      </h1>
+    )
+  }
+
+  const claimRewardButton = () => {
+    return (
+      <button onClick={claimPixel} className='cta-button claim-reward-button'>
+        Claim
+      </button>
+    )
+  }
+
+  const enterMainRaffleButton = () => {
+    return (
+      <button onClick={enterMainRaffle} className='cta-button enter-raffle-button'>
+        Enter
+      </button>
+    )
+  }
+
+  const enterSubRaffleButton = () => {
+    return (
+      <button onClick={enterSubRaffle} className='cta-button enter-raffle-button'>
+        Enter
       </button>
     )
   }
@@ -154,10 +239,13 @@ function App() {
         {currentAccount ? mintNftButton() : connectWalletButton()}
       </div>
       <div>
-        {enterRaffleButton()}
+        {enterMainRaffleButton()}
       </div>
       <div>
         {claimRewardButton()}
+      </div>
+      <div>
+        {usersTokensSection()}
       </div>
     </div>
   )
